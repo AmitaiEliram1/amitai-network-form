@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 const LOOKING_FOR_OPTIONS = [
   "A Job",
@@ -23,7 +23,13 @@ export default function Home() {
   const [agreeNewsletter, setAgreeNewsletter] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dragOver, setDragOver] = useState(false);
+  const [showTermsPopup, setShowTermsPopup] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Scroll to top on step change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [step]);
 
   const toggleOption = (option: string) => {
     setLookingFor((prev) =>
@@ -482,15 +488,13 @@ export default function Home() {
 
             {/* Agreement 1 */}
             <div>
-              <label
-                onClick={() => {
-                  setAgreeTerms(!agreeTerms);
-                  if (errors.agreeTerms) setErrors((p) => ({ ...p, agreeTerms: "" }));
-                }}
-                className="flex items-start gap-3 cursor-pointer group"
-              >
+              <div className="flex items-start gap-3 group">
                 <div
-                  className={`custom-checkbox flex-shrink-0 w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center
+                  onClick={() => {
+                    setAgreeTerms(!agreeTerms);
+                    if (errors.agreeTerms) setErrors((p) => ({ ...p, agreeTerms: "" }));
+                  }}
+                  className={`custom-checkbox flex-shrink-0 w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center cursor-pointer
                              ${agreeTerms ? "checked" : errors.agreeTerms ? "border-red-400" : "border-border group-hover:border-accent"}`}
                 >
                   {agreeTerms && (
@@ -499,18 +503,104 @@ export default function Home() {
                     </svg>
                   )}
                 </div>
-                <span className="text-sm text-foreground leading-relaxed">
-                  I have read the terms and agree that my details will be stored
+                <span
+                  onClick={() => {
+                    setAgreeTerms(!agreeTerms);
+                    if (errors.agreeTerms) setErrors((p) => ({ ...p, agreeTerms: "" }));
+                  }}
+                  className="text-sm text-foreground leading-relaxed cursor-pointer"
+                >
+                  I have read the{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowTermsPopup(true);
+                    }}
+                    className="text-accent underline hover:text-accent-hover cursor-pointer font-medium"
+                  >
+                    terms
+                  </button>{" "}
+                  and agree that my details will be stored
                   in Amitai Eliram&apos;s personal network.{" "}
                   <span className="text-red-500">*</span>
                 </span>
-              </label>
+              </div>
               {errors.agreeTerms && (
                 <p className="mt-1.5 ml-8 text-xs text-red-500">
                   {errors.agreeTerms}
                 </p>
               )}
             </div>
+
+            {/* Terms Popup */}
+            {showTermsPopup && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+                onClick={() => setShowTermsPopup(false)}
+              >
+                <div
+                  className="bg-card rounded-2xl shadow-xl border border-border p-6 sm:p-8 w-full max-w-2xl max-h-[85vh] overflow-y-auto animate-scale-in"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="font-semibold text-foreground text-base sm:text-lg">
+                      Terms of Joining &mdash; Amitai Eliram&apos;s Network
+                    </h2>
+                    <button
+                      onClick={() => setShowTermsPopup(false)}
+                      className="text-muted hover:text-foreground transition-colors cursor-pointer p-1"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="text-muted text-sm leading-relaxed mb-4">
+                    Thanks for joining. A few things you should know before you fill
+                    in the form:
+                  </p>
+                  <div className="space-y-4 text-sm text-muted leading-relaxed">
+                    <div>
+                      <span className="font-medium text-foreground">What this is.</span>{" "}
+                      A private network I run personally. Once a week I send a newsletter with job openings, startup partnership opportunities, and relevant content that comes my way. This is a personal network &mdash; not a recruitment agency, no commissions, no commercial agenda.
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">What I&apos;ll do with your details.</span>{" "}
+                      I&apos;ll keep them with me &mdash; and with me only &mdash; review the list when an opportunity comes in, and include relevant content in the weekly newsletter. If I spot a specific match I&apos;ll reach out to you personally.
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">What I won&apos;t do.</span>{" "}
+                      I won&apos;t sell your details, I won&apos;t forward your CV to anyone without asking you first, and I won&apos;t flood you with messages.
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">Leave anytime.</span>{" "}
+                      Want to opt out or have your details deleted? One email to me (<a href="mailto:amitai.eliram@gmail.com" className="text-accent hover:underline">amitai.eliram@gmail.com</a>) and I&apos;ll take care of it within a few days. Every newsletter will also include an unsubscribe link.
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">Fair expectations.</span>{" "}
+                      I do this voluntarily. I can&apos;t guarantee that you&apos;ll receive an offer, that anything will lead anywhere, or that the other side will behave properly. Any opportunity I pass along &mdash; it&apos;s your responsibility to vet it before moving forward.
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">Disclosure.</span>{" "}
+                      I am the CEO and owner of Congreat Ltd., but this network is a personal activity of mine and is not affiliated with the company&apos;s operations.
+                    </div>
+                    <div className="pt-2 border-t border-border text-muted">
+                      &mdash; Amitai Eliram |{" "}
+                      <a href="mailto:amitai.eliram@gmail.com" className="text-accent hover:underline">amitai.eliram@gmail.com</a>
+                    </div>
+                    <div className="font-medium text-foreground italic">Good luck.</div>
+                  </div>
+                  <button
+                    onClick={() => setShowTermsPopup(false)}
+                    className="w-full mt-6 py-3 bg-accent text-white font-semibold rounded-xl text-sm
+                               hover:bg-accent-hover active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Agreement 2 */}
             <div>
