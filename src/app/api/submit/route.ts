@@ -64,6 +64,7 @@ export async function POST(request: Request) {
     await put("data/responses.json", JSON.stringify(rows, null, 2), {
       access: "public",
       addRandomSuffix: false,
+      allowOverwrite: true,
       contentType: "application/json",
     });
 
@@ -87,6 +88,7 @@ export async function POST(request: Request) {
     await put("data/responses.xlsx", excelBuffer, {
       access: "public",
       addRandomSuffix: false,
+      allowOverwrite: true,
       contentType:
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
